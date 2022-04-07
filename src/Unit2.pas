@@ -19,6 +19,10 @@ type
     procedure Button2Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Edit1Enter(Sender: TObject);
+    procedure Edit1Exit(Sender: TObject);
+    procedure Edit2Enter(Sender: TObject);
+    procedure Edit2Exit(Sender: TObject);
   private
     { Private declarations }
   public
@@ -72,30 +76,17 @@ begin
     Exit;
   end;
 
-  ShowMessage(ExtractFilePath(
-  Application.ExeName) + 'mopo.ini');
-
   count := 1;
 
   ini := TIniFile.Create(ExtractFilePath(
   Application.ExeName) + 'mopo.ini');
 
-  ShowMessage(ExtractFilePath(
-  Application.ExeName) + 'mopo.ini' + #13#10 + IntToStr(count));
-
   count := StrToInt(ini.ReadString('projects','count','1'));
   inc(count);
-
-    ShowMessage(ExtractFilePath(
-  Application.ExeName) + 'mopo.ini' + #13#10 + IntToStr(count));
-
 
   ini.WriteInteger('projects','count',count);
   ini.WriteString('pro:' + IntToStr(count), 'title'  , Form2.Edit1.Text);
   ini.WriteString('pro:' + IntToStr(count), 'content', Form2.Edit2.Text);
-
-    ShowMessage(ExtractFilePath(
-  Application.ExeName) + 'mopo.ini');
 
   for i := 1 to 10 do
   begin
@@ -104,6 +95,30 @@ begin
 
   ini.Free;
   Form2.Close;
+end;
+
+procedure TForm2.Edit1Enter(Sender: TObject);
+begin
+  Form2.Edit1.Color := clYellow;
+  Form2.Edit1.Font.Color := clBlack;
+end;
+
+procedure TForm2.Edit1Exit(Sender: TObject);
+begin
+  Form2.Edit1.Color := clWhite;
+  Form2.Edit1.Font.Color := clBlack;
+end;
+
+procedure TForm2.Edit2Enter(Sender: TObject);
+begin
+  Form2.Edit2.Color := clYellow;
+  Form2.Edit2.Font.Color := clBlack;
+end;
+
+procedure TForm2.Edit2Exit(Sender: TObject);
+begin
+  Form2.Edit2.Color := clWhite;
+  Form2.Edit2.Font.Color := clBlack;
 end;
 
 end.

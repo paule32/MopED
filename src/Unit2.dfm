@@ -42,6 +42,8 @@ object Form2: TForm2
     Width = 177
     Height = 21
     TabOrder = 0
+    OnEnter = Edit1Enter
+    OnExit = Edit1Exit
   end
   object Edit2: TEdit
     Left = 8
@@ -49,6 +51,8 @@ object Form2: TForm2
     Width = 177
     Height = 21
     TabOrder = 1
+    OnEnter = Edit2Enter
+    OnExit = Edit2Exit
   end
   object Button1: TButton
     Left = 8
