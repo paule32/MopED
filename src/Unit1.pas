@@ -10,7 +10,7 @@ uses
   Controls, Forms, Dialogs, Menus,
   ImgList, ComCtrls, ToolWin, Grids, bde,
   ExtCtrls, StdCtrls, DBCtrls, DBGrids, DB,
-  DBTables, madExceptVcl, Buttons;
+  DBTables, madExceptVcl, Buttons, Mask;
 
 const
   mopoIniFile = 'default.ini';
@@ -134,6 +134,13 @@ type
     Label15: TLabel;
     Label16: TLabel;
     ComboBox5: TComboBox;
+    Table1LINE: TIntegerField;
+    Table1FILE: TStringField;
+    Label17: TLabel;
+    Label18: TLabel;
+    SpeedButton11: TSpeedButton;
+    DBEdit1: TDBEdit;
+    DBEdit2: TDBEdit;
     procedure Exit1Click(Sender: TObject);
 
     procedure Table1MSGIDGetText (Sender: TField; var Text: String; DisplayText: Boolean);
@@ -211,12 +218,21 @@ type
 
     procedure DBMemo1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure DBMemo2KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
-    procedure ComboBox4DrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
-    procedure ComboBox5DrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
+
+    procedure ComboBox4DrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+    procedure ComboBox5DrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+
+    procedure DBEdit1Enter(Sender: TObject);
+    procedure DBEdit2Enter(Sender: TObject);
+
+    procedure DBEdit1Exit(Sender: TObject);
+    procedure DBEdit2Exit(Sender: TObject);
+
+    procedure DBEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure DBEdit2KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
   public
     ini: TIniFile;
@@ -407,6 +423,17 @@ begin
           begin
             Name := 'MSGSTR';
             DataType := ftMemo;
+          end;
+          with AddFieldDef do
+          begin
+            Name := 'LINE';
+            DataType := ftInteger;
+          end;
+          with AddFieldDef do
+          begin
+            Name := 'FILE';
+            DataType := ftString;
+            Size := 512;
           end;
         end;
         // index
@@ -1057,8 +1084,8 @@ begin
     Append;
     Edit;
     FieldByName('ID').AsInteger := i;
-    FieldByName('MSGID' ).AsString := ' ';
-    FieldByName('MSGSTR').AsString := ' ';
+    FieldByName('MSGID' ).AsString := '';
+    FieldByName('MSGSTR').AsString := '';
     Edit;
     Post;
   end;
@@ -1182,7 +1209,7 @@ procedure TForm1.Edit10KeyDown(Sender: TObject; var Key: Word; Shift: TShiftStat
 procedure TForm1.Edit11KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); begin if Key = VK_RETURN then Edit10.SetFocus; end;
 
 procedure TForm1.DBMemo1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); begin if Key = VK_RETURN then DBMemo2.SetFocus; end;
-procedure TForm1.DBMemo2KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); begin if Key = VK_RETURN then   Edit1.SetFocus; end;
+procedure TForm1.DBMemo2KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); begin if Key = VK_RETURN then DBMemo1.SetFocus; end;
 
 procedure TForm1.SpeedButton9Click(Sender: TObject);
 begin
@@ -1204,10 +1231,13 @@ var
   s : String;
   fs: TFileStream;
 begin
-  if Length(Trim(outputProjectFile)) < 1 then
+  if Length(Trim(Edit10.Text)) < 1 then
+  s := ExtractFilePath(open_data) + 'default.po' else
+  s := Trim(Edit10.Text);
+  if Length(s) < 1 then
   begin
     i := Application.MessageBox(
-         PChar('no output file given.'
+         PChar('no output .po file given.'
          + #13#10 + 'Would you like to choose one ?'),
          PChar('Warning'),
          MB_YESNO);
@@ -1216,6 +1246,9 @@ begin
       Exit;
     end else
     begin
+      SaveDialog1.DefaultExt := '.po';
+      SaveDialog1.FileName   := s;
+      SaveDialog1.Filter     := 'po source file|*.po';
       if not SaveDialog1.Execute then
       begin
         Application.MessageBox(
@@ -1225,44 +1258,59 @@ begin
         Exit;
       end;
     end;
-  end else
+  end;
+  if FileExists(SaveDialog1.FileName) then
   begin
-    if FileExists(outputProjectFile) then
+    i := Application.MessageBox(
+         PChar('output project file exists.'
+         + #13#10 + 'Would you like overwrite it ?'),
+         PChar('Warning'),
+         MB_YESNO);
+    if i = ID_NO then
+    Exit else
     begin
-      i := Application.MessageBox(
-           PChar('output project file exists.'
-           + #13#10 + 'Would you like overwrite it ?'),
-           PChar('Warning'),
-           MB_YESNO);
-      if i = ID_NO then
-      Exit else
+      if not DeleteFile(open_data) then
       begin
-        if not DeleteFile(outputProjectFile) then
-        begin
-          Application.MessageBox(
-          PChar('could not delete old project file !'),
-          PChar('Warning'),
-          MB_OK);
-          Exit;
-        end;
+        Application.MessageBox(
+        PChar('could not delete current .po file !'),
+        PChar('Warning'),
+        MB_OK);
+        Exit;
       end;
     end;
-    fs := TFileStream.Create(outputProjectFile,
-    fmCreate or fmShareDenyWrite);
-    try
-      s :=
-      'Project-Id-Version'    +
-      'Report-Msgid-Bugs-To'  +
-      'POT-Creation-Date'     +
-      'PO-Revision-Date'      +
-      'Last-Translator'       +
-      'Language-Team'         +
-      'Language'              +
-      'Content-Type'          +
-      'Content-Transfer-Encoding';
-    finally
-      FreeAndNil(fs);
+  end;
+  fs := TFileStream.Create(s,
+  fmCreate or fmShareDenyWrite);
+  try
+    s :=
+    '# This file was automatically create on: ' + DateToStr(Now)         + #13#10 +
+    '# Creator: moped 1.0 (c) 2022 by Jens Kallup - paule32'             + #13#10 +
+    '# all rights reserved.'                                             + #13#10 +
+    '#'                                                                  + #13#10 +
+    'msgid ""'                                                           + #13#10 +
+    'msgstr ""'                                                          + #13#10 +
+    '"Project-Id-Version: '        + 'PACKAGE VERSION'           + '\n"' + #13#10 +
+    '"Report-Msgid-Bugs-To: '                                    + '\n"' + #13#10 +
+    '"POT-Creation-Date: '         + DateTimeToStr(Now)          + '\n"' + #13#10 +
+    '"PO-Revision-Date: '          + DateTimeToStr(Now)          + '\n"' + #13#10 +
+    '"Last-Translator: '           + 'Automatically generated'   + '\n"' + #13#10 +
+    '"Language-Team: '             + 'none'                      + '\n"' + #13#10 +
+    '"Language: '                  + 'de_DE'                     + '\n"' + #13#10 +
+    '"Content-Type: '              + 'text/plain; charset=UTF-8' + '\n"' + #13#10 +
+    '"Content-Transfer-Encoding: ' + '8bit'                      + '\n"' + #13#10 +
+    '#'                                                                  + #13#10 ;
+    Table1.First;
+    while not Table1.Eof do
+    begin
+      s :=     s +
+      'msgid  "' + Table1.Fields.Fields[1].AsString + '"' + #13#10 +
+      'msgstr "' + Table1.Fields.Fields[2].AsString + '"' + #13#10#13#10;
+      Table1.Next;
     end;
+    Table1.First;
+    fs.Write(PChar(s)^,Length(s));
+  finally
+    FreeAndNil(fs);
   end;
 end;
 
@@ -1371,6 +1419,35 @@ procedure TForm1.ComboBox5DrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
 begin
   ComboBox4DrawItem(Control,Index,Rect,State);
+end;
+
+procedure TForm1.DBEdit1Enter(Sender: TObject); begin DBEdit1.Color := clYellow; Table1.Edit; end;
+procedure TForm1.DBEdit2Enter(Sender: TObject); begin DBEdit2.Color := clYellow; Table1.Edit; end;
+
+procedure TForm1.DBEdit1Exit (Sender: TObject); begin DBEdit1.Color := clWhite; Table1.Edit; Table1.Post; end;
+procedure TForm1.DBEdit2Exit (Sender: TObject); begin DBEdit2.Color := clWhite; Table1.Edit; Table1.Post; end;
+
+procedure TForm1.DBEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = VK_RETURN then
+  begin
+    DataSource1.AutoEdit := true;
+    Table1.Edit;
+    Table1.Post;
+    DBEdit2.SetFocus;
+  end;
+  key := 0;
+end;
+procedure TForm1.DBEdit2KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = VK_RETURN then
+  begin
+    DataSource1.AutoEdit := true;
+    Table1.Edit;
+    Table1.Post;
+    DBEdit1.SetFocus;
+  end;
+  key := 0;
 end;
 
 end.

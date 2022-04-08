@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 224
-  Top = 158
+  Left = 211
+  Top = 207
   Width = 807
   Height = 564
   Caption = 'mopo (c) 2022 by Jens Kallup - paule32'
@@ -117,7 +117,7 @@ object Form1: TForm1
       Top = 1
       Width = 324
       Height = 331
-      ActivePage = TabSheet4
+      ActivePage = TabSheet2
       Align = alClient
       TabOrder = 0
       object TabSheet1: TTabSheet
@@ -297,6 +297,52 @@ object Form1: TForm1
           Height = 300
           Align = alClient
           TabOrder = 0
+          object Label17: TLabel
+            Left = 8
+            Top = 8
+            Width = 62
+            Height = 16
+            Caption = 'File Name:'
+          end
+          object Label18: TLabel
+            Left = 8
+            Top = 48
+            Width = 79
+            Height = 16
+            Caption = 'Location Line:'
+          end
+          object SpeedButton11: TSpeedButton
+            Left = 258
+            Top = 24
+            Width = 23
+            Height = 22
+            OnClick = SpeedButton9Click
+          end
+          object DBEdit1: TDBEdit
+            Left = 8
+            Top = 24
+            Width = 241
+            Height = 24
+            DataField = 'FILE'
+            DataSource = DataSource1
+            MaxLength = 512
+            TabOrder = 0
+            OnEnter = DBEdit1Enter
+            OnExit = DBEdit1Exit
+            OnKeyDown = DBEdit1KeyDown
+          end
+          object DBEdit2: TDBEdit
+            Left = 8
+            Top = 64
+            Width = 241
+            Height = 24
+            DataField = 'LINE'
+            DataSource = DataSource1
+            TabOrder = 1
+            OnEnter = DBEdit2Enter
+            OnExit = DBEdit2Exit
+            OnKeyDown = DBEdit2KeyDown
+          end
         end
       end
       object TabSheet3: TTabSheet
@@ -586,7 +632,6 @@ object Form1: TForm1
       Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
       ParentFont = False
       PopupMenu = PopupMenu1
-      ReadOnly = True
       TabOrder = 0
       TitleFont.Charset = DEFAULT_CHARSET
       TitleFont.Color = clYellow
@@ -618,6 +663,31 @@ object Form1: TForm1
           Title.Caption = 'Translation -- German'
           Title.Color = clNavy
           Width = 173
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'LINE'
+          Title.Caption = ' Line:'
+          Title.Color = clRed
+          Title.Font.Charset = ANSI_CHARSET
+          Title.Font.Color = clWhite
+          Title.Font.Height = -13
+          Title.Font.Name = 'Verdana'
+          Title.Font.Style = [fsBold]
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'FILE'
+          Title.Caption = ' File:'
+          Title.Color = clRed
+          Title.Font.Charset = ANSI_CHARSET
+          Title.Font.Color = clWhite
+          Title.Font.Height = -13
+          Title.Font.Name = 'Verdana'
+          Title.Font.Style = [fsBold]
+          Width = 190
           Visible = True
         end>
     end
@@ -2320,6 +2390,7 @@ object Form1: TForm1
   object Table1: TTable
     AfterOpen = Table1AfterOpen
     AfterScroll = Table1AfterScroll
+    TableName = 'default.dbf'
     TableType = ttDBase
     Left = 584
     Top = 52
@@ -2338,6 +2409,14 @@ object Form1: TForm1
       BlobType = ftMemo
       Size = 1
     end
+    object Table1LINE: TIntegerField
+      Alignment = taLeftJustify
+      FieldName = 'LINE'
+    end
+    object Table1FILE: TStringField
+      FieldName = 'FILE'
+      Size = 254
+    end
   end
   object DataSource1: TDataSource
     DataSet = Table1
@@ -2346,7 +2425,7 @@ object Form1: TForm1
   end
   object MadExceptionHandler1: TMadExceptionHandler
     Left = 377
-    Top = 93
+    Top = 141
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Ini files|*.ini'

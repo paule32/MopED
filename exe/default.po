@@ -1,0 +1,25 @@
+# This file was automatically create on: 08.04.2022
+# Creator: moped 1.0 (c) 2022 by Jens Kallup - paule32
+# all rights reserved.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 08.04.2022 10:00:57\n"
+"PO-Revision-Date: 08.04.2022 10:00:57\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: de_DE\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+#
+msgid  "sss"
+msgstr "y3434"
+
+msgid  "test tbfay"
+msgstr "tztzui323"
+
+msgid  "muppppoo"
+msgstr "78787878"
+
